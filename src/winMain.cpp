@@ -3,7 +3,6 @@
 #include <iostream>
 #include <windows.h>
 #include <chrono>
-#include <fstream>
 
 
 #include <GameWindowBuffer.h>
@@ -106,9 +105,6 @@ int main()
 
     windowStuff.gameWindowBuffer.ResetWindowBuffer(hwnd, &windowStuff.bitmapInfo);
     MSG msg = { };
-    std::ofstream out;
-    out.open("123.txt");
-    out.close();
     while (windowStuff.running)
     {
 
