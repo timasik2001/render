@@ -3,7 +3,7 @@
 #include <iostream>
 #include <windows.h>
 #include <chrono>
-
+#include <fstream>
 
 
 #include <GameWindowBuffer.h>
@@ -18,25 +18,37 @@ public:
 
 WindowStuff windowStuff;
 
-// Обработка сообщений окна
+
+
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+
     switch (uMsg)
     {
     case WM_DESTROY:
+    {
         PostQuitMessage(0);
         return 0;
+    }
     case WM_CLOSE:
+    {
         windowStuff.running = false;
         break;
+    }
     case WM_SIZE:
+    {
+
         windowStuff.gameWindowBuffer.ResetWindowBuffer(hwnd, &windowStuff.bitmapInfo);
+
         break;
+    }
     case WM_PAINT:
     {
+        //std::cout << uMsg;
         PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hwnd, &ps);
-
+        HDC DeviceContext = BeginPaint(hwnd, &ps);
+        HDC hdc = GetDC(hwnd);
         StretchDIBits(hdc,
             0, 0, windowStuff.gameWindowBuffer.w, windowStuff.gameWindowBuffer.h,
             0, 0, windowStuff.gameWindowBuffer.w, windowStuff.gameWindowBuffer.h,
@@ -49,9 +61,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         ReleaseDC(hwnd, hdc);
 
         EndPaint(hwnd, &ps);
+        break;
     }
-    return 0;
-
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -89,37 +100,26 @@ int main()
     {
         return 0;
     }
-    // создаем gamewindowbuffer
-    windowStuff.gameWindowBuffer.ResetWindowBuffer(hwnd, &windowStuff.bitmapInfo);
+
 #pragma endregion
 
 
-
-    auto stop = std::chrono::high_resolution_clock::now();
+    windowStuff.gameWindowBuffer.ResetWindowBuffer(hwnd, &windowStuff.bitmapInfo);
+    MSG msg = { };
+    std::ofstream out;
+    out.open("123.txt");
+    out.close();
     while (windowStuff.running)
     {
-        MSG msg = { };
+
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
-        
         }
-#pragma region deltaTime
-
-        auto start = std::chrono::high_resolution_clock::now();
-
-        float deltaTime = (std::chrono::duration_cast<std::chrono::microseconds>(start - stop)).count() / 1000000.0f;
-        stop = std::chrono::high_resolution_clock::now();
-
-        //we don't want delta time to drop too low, like let's say under 5 fps. you can set this to whatever you want
-        //or remove it but I recomand keeping it
-        float augmentedDeltaTime = deltaTime;
-        if (augmentedDeltaTime > 1.f / 5) { augmentedDeltaTime = 1.f / 5; }
-
-#pragma endregion
         windowStuff.gameWindowBuffer.ClearWindow();
-        //SendMessage(hwnd, WM_PAINT, 0, 0);
+        SendMessage(hwnd, WM_PAINT, 0, 0);
+        std::cout << windowStuff.gameWindowBuffer.h << ' ' << windowStuff.gameWindowBuffer.w << std::endl;
 
     }
 

@@ -3,17 +3,17 @@
 
 #include <gameWindowBuffer.h>
 // вызываем на ресайзе и перед запуском цикла окна
-void GameWindowBuffer::ResetWindowBuffer(HWND hwnd, BITMAPINFO *bitmapInfo)
+void GameWindowBuffer::ResetWindowBuffer(HWND hwnd, BITMAPINFO* bitmapInfo)
 {
 	RECT rect = { };
 	GetClientRect(hwnd, &rect);
 	this->w = rect.right;
 	this->h = rect.bottom;
-	if (this->memory != nullptr)
+	if (this->memory)
 	{
-		delete [] this->memory;
+		delete[] this->memory;
 	}
-	this->memory = new BYTE[4 * this->w * this->h];
+	this->memory = new unsigned char[4 * this->w * this->h];
 	bitmapInfo->bmiHeader.biSize = sizeof(BITMAPINFO);
 	bitmapInfo->bmiHeader.biWidth = this->w;
 	bitmapInfo->bmiHeader.biHeight = -this->h;
@@ -28,10 +28,10 @@ void GameWindowBuffer::ClearWindow()
 	{
 		for (int j = 0; j < this->w; j++)
 		{
-			this->memory[4 * (i * this->h + j) + 0] = 0;
-			this->memory[4 * (i * this->h + j) + 1] = 0;
-			this->memory[4 * (i * this->h + j) + 2] = 0;
-			this->memory[4 * (i * this->h + j) + 3] = 0;
+			this->memory[4 * (i * this->w + j) + 0] = 255;
+			this->memory[4 * (i * this->w + j) + 1] = 0;
+			this->memory[4 * (i * this->w + j) + 2] = 0;
+			this->memory[4 * (i * this->w + j) + 3] = 0;
 		}
 	}
 }
